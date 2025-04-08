@@ -18,11 +18,11 @@ The backend processes the query, performs context-aware retrieval from a vector 
 The answer is returned to the front-end and displayed instantly to the user.
 
 🛠 Tech Stack
-Framework: React / Next.js / [or whatever you're using—feel free to replace this]
+Framework: React / Typescript
 
-Styling: Tailwind CSS / [or any UI framework you're using]
+Styling: MaterialUI
 
-API Communication: Axios / Fetch API
+API Communication: Axios
 
 Backend: FastAPI (Python)
 
