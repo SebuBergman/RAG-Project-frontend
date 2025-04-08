@@ -28,3 +28,4 @@ Backend: FastAPI (Python)
 
 AI Models: HuggingFace + OpenAI GPT
 
+<a href="https://github.com/SebuBergman/RAG-Project-backend">RAG back-end github</a>
