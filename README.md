@@ -1,54 +1,30 @@
-# React + TypeScript + Vite
+🧠 RAG Agent Front-End
+This is the front-end interface for interacting with a Retrieval-Augmented Generation (RAG) system powered by OpenAI. It allows users to input natural language questions, which are then processed and answered based on contextually relevant data extracted from PDF documents.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🔧 Features
+User-Friendly Interface: Clean and intuitive design for asking questions and viewing answers in real time.
 
-Currently, two official plugins are available:
+API Integration: Connects seamlessly with the backend RAG agent via RESTful API calls built with FastAPI.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Responsive Design: Optimized for both desktop and mobile devices to ensure accessibility.
 
-## Expanding the ESLint configuration
+🧩 How It Works
+Users input a question through the front-end.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The question is sent to the backend RAG agent via an API call.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+The backend processes the query, performs context-aware retrieval from a vector database (MongoDB + HuggingFace embeddings), and sends the relevant data to OpenAI for response generation.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The answer is returned to the front-end and displayed instantly to the user.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+🛠 Tech Stack
+Framework: React / Next.js / [or whatever you're using—feel free to replace this]
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Styling: Tailwind CSS / [or any UI framework you're using]
+
+API Communication: Axios / Fetch API
+
+Backend: FastAPI (Python)
+
+AI Models: HuggingFace + OpenAI GPT
+
