@@ -27,24 +27,17 @@ export default function Home() {
 
   // Fetch the list of PDFs when the component mounts
   useEffect(() => {
-    const fetchData = async () => {
-      const pdfList = await fetchPDFs();
-      setPDFs(pdfList); // Ensure the type matches { file_name, file_path }
-
-      if (pdfList.length > 0) {
-        setSelectedPDF(pdfList[0].file_name); // Access `file_name` correctly on the first item
-      }
-    };
-
     fetchData();
   }, []);
 
   const fetchData = async () => {
     const pdfList = await fetchPDFs();
-    setPDFs(pdfList); // Ensure the type matches { file_name, file_path }
+    setPDFs(pdfList);
 
     if (pdfList.length > 0) {
-      setSelectedPDF(pdfList[0].file_name); // Access `file_name` correctly on the first item
+      setSelectedPDF(pdfList[0].file_name); // Automatically select the first PDF if available
+    } else {
+      setSelectedPDF(""); // Reset selected PDF if no PDFs are available
     }
   };
 
@@ -78,10 +71,6 @@ export default function Home() {
     setUploadMessage(message);
 
     // Refresh the list of PDFs after upload
-    const pdfList = await fetchPDFs();
-    setPDFs(pdfList);
-    if (pdfList.length > 0) setSelectedPDF(pdfList[0]);
-
     fetchData();
   };
 
@@ -131,11 +120,17 @@ export default function Home() {
                 value={selectedPDF}
                 onChange={(e) => setSelectedPDF(e.target.value)}
               >
-                {pdfs.map((pdf) => (
-                  <MenuItem key={pdf.file_name} value={pdf.file_name}>
-                    {pdf.file_name}
+                {pdfs.length > 0 ? (
+                  pdfs.map((pdf) => (
+                    <MenuItem key={pdf.file_name} value={pdf.file_name}>
+                      {pdf.file_name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem value="" disabled>
+                    No PDFs uploaded
                   </MenuItem>
-                ))}
+                )}
               </Select>
             </FormControl>
             {/* Refresh Button. Just for testing */}
