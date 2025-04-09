@@ -30,4 +30,4 @@ AI Models: HuggingFace + OpenAI GPT
 
 <a href="https://github.com/SebuBergman/RAG-Project-backend">RAG back-end github</a>
 
-<img src="https://github.com/SebuBergman/RAG-Project-frontend/blob/main/public/rag_agent_frontend_w_answer.png" alt="Logo" width="1200">
+<img src="https://github.com/SebuBergman/RAG-Project-frontend/blob/main/public/rag_agent_frontend_w_answer.png" alt="Logo" width="570">
