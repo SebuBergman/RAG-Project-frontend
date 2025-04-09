@@ -96,7 +96,7 @@ export default function Home() {
         <Paper elevation={3} style={{ padding: "20px" }}>
           <Box textAlign="center" marginBottom={2}>
             <Typography variant="h4" gutterBottom>
-              Ask a Question about Uploaded PDFs
+              Ask a Question about from the RAG Agent
             </Typography>
           </Box>
 
