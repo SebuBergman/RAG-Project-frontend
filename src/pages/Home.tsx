@@ -3,7 +3,6 @@ import { fetchPDFs, queryAPI, uploadPDF } from "../components/API_request";
 import {
   Container,
   TextField,
-  Button,
   Typography,
   Box,
   Paper,
@@ -13,10 +12,12 @@ import {
   Select,
   //IconButton,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 //import RefreshIcon from "@mui/icons-material/Refresh";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
+  const [keyword, setKeyword] = useState("");
   const [answer, setAnswer] = useState("");
   const [pdfs, setPDFs] = useState<{ file_name: string; file_path: string }[]>(
     []
@@ -24,6 +25,8 @@ export default function Home() {
   const [selectedPDF, setSelectedPDF] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [uploadMessage, setUploadMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Loading state for the upload button
+  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for the submit button
 
   // Fetch the list of PDFs when the component mounts
   useEffect(() => {
@@ -44,31 +47,41 @@ export default function Home() {
   // Handle the form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true); // Set loading state when starting submission
+    setAnswer(""); // Reset the answer before submitting
 
     if (question.trim() === "") {
       setAnswer("Please enter a question.");
+      setIsSubmitting(false);
       return;
     }
 
     if (selectedPDF === "") {
       setAnswer("Please select a PDF.");
+      setIsSubmitting(false);
       return;
     }
 
     // Call the backend API and set the answer
-    const response = await queryAPI(question, selectedPDF);
+    const response = await queryAPI(question, keyword, selectedPDF); // Pass selectedPDF as file_name
+    setIsSubmitting(false); // Reset the loading state after submission
     setAnswer(response);
+    console.log(response);
   };
 
   // Handle PDF file upload
   const handleFileUpload = async () => {
+    setIsLoading(true); // Set loading state when starting upload
+
     if (!file) {
       setUploadMessage("Please select a file to upload.");
       return;
     }
 
+    setUploadMessage("File uploading. This might take some time!"); // Reset the upload message
     const message = await uploadPDF(file);
     setUploadMessage(message);
+    setIsLoading(false); // Reset the loading state after upload
 
     // Refresh the list of PDFs after upload
     fetchData();
@@ -85,28 +98,42 @@ export default function Home() {
         <Paper elevation={3} style={{ padding: "20px" }}>
           <Box textAlign="center" marginBottom={2}>
             <Typography variant="h4" gutterBottom>
-              Ask a Question about from the RAG Agent
+              Ask a Question from the RAG Agent
             </Typography>
           </Box>
 
           {/* File upload Section */}
-          <Box marginBottom={2}>
+          <Box
+            marginBottom={4}
+            display="flex"
+            flexDirection="column"
+            alignItems="right"
+          >
             <Typography variant="h6">Upload a PDF</Typography>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              style={{ marginBottom: "10px" }}
-            />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleFileUpload}
+            <Box
+              display="flex"
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="space-between"
             >
-              Upload PDF
-            </Button>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                style={{ marginBottom: "10px" }}
+              />
+              <LoadingButton
+                loading={isLoading}
+                variant="contained"
+                color="secondary"
+                onClick={handleFileUpload}
+                disabled={!file} // Disable button if no file is selected
+              >
+                Upload PDF
+              </LoadingButton>
+            </Box>
             {uploadMessage && (
-              <Typography variant="body2" color="textSecondary" marginTop={2}>
+              <Typography variant="body1" color="textSecondary" marginTop={1}>
                 {uploadMessage}
               </Typography>
             )}
@@ -141,13 +168,6 @@ export default function Home() {
             */}
           </Box>
 
-          {/* Upload Message */}
-          {uploadMessage && (
-            <Typography variant="body2" color="textSecondary">
-              {uploadMessage}
-            </Typography>
-          )}
-
           {/* Question Input and Submit */}
           <form onSubmit={handleSubmit}>
             <Box marginBottom={2}>
@@ -159,15 +179,26 @@ export default function Home() {
                 onChange={(e) => setQuestion(e.target.value)}
               />
             </Box>
+            <Box marginBottom={2}>
+              <TextField
+                fullWidth
+                label="Enter your question"
+                variant="outlined"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+            </Box>
             <Box textAlign="center">
-              <Button
+              <LoadingButton
+                loading={isSubmitting}
+                disabled={isSubmitting}
                 type="submit"
                 variant="contained"
                 color="primary"
                 size="large"
               >
                 Ask
-              </Button>
+              </LoadingButton>
             </Box>
           </form>
 
