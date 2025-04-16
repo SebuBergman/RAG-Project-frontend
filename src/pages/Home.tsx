@@ -182,7 +182,7 @@ export default function Home() {
             <Box marginBottom={2}>
               <TextField
                 fullWidth
-                label="Enter your question"
+                label="Enter your keyword"
                 variant="outlined"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
