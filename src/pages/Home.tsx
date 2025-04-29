@@ -115,28 +115,32 @@ export default function Home() {
             marginBottom={4}
             display="flex"
             flexDirection="column"
-            alignItems="right"
+            alignItems="stretch"
           >
-            <Typography variant="h6">Upload a PDF</Typography>
+            <Typography variant="h6" marginBottom={1}>
+              Upload a PDF
+            </Typography>
             <Box
               display="flex"
-              flexDirection="row"
-              alignItems="center"
               justifyContent="space-between"
+              alignItems="center"
             >
               <input
                 type="file"
                 accept="application/pdf"
-                ref={fileInputRef} // Attach the ref to the file input
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                style={{ marginBottom: "10px" }}
+                ref={fileInputRef}
+                style={{
+                  flex: 1,
+                  marginRight: "10px",
+                }}
               />
               <LoadingButton
                 loading={isLoading}
                 variant="contained"
                 color="secondary"
                 onClick={handleFileUpload}
-                disabled={!file} // Disable button if no file is selected
+                disabled={!file}
               >
                 Upload PDF
               </LoadingButton>
