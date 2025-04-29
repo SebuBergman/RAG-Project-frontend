@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { fetchPDFs, queryAPI, uploadPDF } from "../components/API_request";
 import {
   Container,
@@ -25,8 +25,11 @@ export default function Home() {
   const [selectedPDF, setSelectedPDF] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [uploadMessage, setUploadMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Loading state for the upload button
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for the submit button
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reference to the file input element
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Fetch the list of PDFs when the component mounts
   useEffect(() => {
@@ -65,8 +68,7 @@ export default function Home() {
     // Call the backend API and set the answer
     const response = await queryAPI(question, keyword, selectedPDF); // Pass selectedPDF as file_name
     setIsSubmitting(false); // Reset the loading state after submission
-    setAnswer(response);
-    console.log(response);
+    setAnswer(response); // Set the answer from the API response
   };
 
   // Handle PDF file upload
@@ -80,11 +82,17 @@ export default function Home() {
 
     setUploadMessage("File uploading. This might take some time!"); // Reset the upload message
     const message = await uploadPDF(file);
-    setUploadMessage(message);
+    setUploadMessage(message); // Set the upload message after upload
     setIsLoading(false); // Reset the loading state after upload
 
     // Refresh the list of PDFs after upload
     fetchData();
+
+    // Reset the file input and file state
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset the file input element
+    }
   };
 
   return (
@@ -119,6 +127,7 @@ export default function Home() {
               <input
                 type="file"
                 accept="application/pdf"
+                ref={fileInputRef} // Attach the ref to the file input
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                 style={{ marginBottom: "10px" }}
               />
@@ -160,12 +169,6 @@ export default function Home() {
                 )}
               </Select>
             </FormControl>
-            {/* Refresh Button. Just for testing */}
-            {/* 
-            <IconButton onClick={fetchData}>
-              <RefreshIcon />
-            </IconButton>
-            */}
           </Box>
 
           {/* Question Input and Submit */}
