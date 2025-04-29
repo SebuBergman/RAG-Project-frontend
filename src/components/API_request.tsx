@@ -12,7 +12,7 @@ export const queryAPI = async (question: string, pdf: string): Promise<string> =
     return response.data.answer;
   } catch (error) {
     console.error("Error querying the API:", error);
-    return "An error occurred while querying the API.";
+    return "An error occurred while querying the API. Please try again.";
   }
 };
 
@@ -31,7 +31,7 @@ export const uploadPDF = async (file: File): Promise<string> => {
     return response.data.message;
   } catch (error) {
     console.error("Error uploading the PDF:", error);
-    return "An error occurred while uploading the PDF.";
+    return "An error occurred while uploading the PDF. Please try again.";
   }
 };
 

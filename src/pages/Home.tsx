@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { fetchPDFs, queryAPI, uploadPDF } from "../components/API_request";
 import {
   Container,
@@ -11,9 +11,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  //IconButton,
 } from "@mui/material";
-//import RefreshIcon from "@mui/icons-material/Refresh";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -24,6 +22,9 @@ export default function Home() {
   const [selectedPDF, setSelectedPDF] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [uploadMessage, setUploadMessage] = useState("");
+
+  // Reference to the file input element
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Fetch the list of PDFs when the component mounts
   useEffect(() => {
@@ -72,6 +73,12 @@ export default function Home() {
 
     // Refresh the list of PDFs after upload
     fetchData();
+
+    // Reset the file input and file state
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset the file input element
+    }
   };
 
   return (
@@ -85,26 +92,44 @@ export default function Home() {
         <Paper elevation={3} style={{ padding: "20px" }}>
           <Box textAlign="center" marginBottom={2}>
             <Typography variant="h4" gutterBottom>
-              Ask a Question about from the RAG Agent
+              Ask a Question to the RAG Agent
             </Typography>
           </Box>
 
           {/* File upload Section */}
-          <Box marginBottom={2}>
-            <Typography variant="h6">Upload a PDF</Typography>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              style={{ marginBottom: "10px" }}
-            />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleFileUpload}
+          <Box
+            marginBottom={4}
+            display="flex"
+            flexDirection="column"
+            alignItems="stretch"
+          >
+            <Typography variant="h6" marginBottom={1}>
+              Upload a PDF
+            </Typography>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              Upload PDF
-            </Button>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                ref={fileInputRef} // Attach the ref to the file input
+                style={{
+                  flex: 1,
+                  marginRight: "10px", // Add spacing between input and button
+                }}
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleFileUpload}
+                style={{ whiteSpace: "nowrap" }} // Prevent text wrapping
+              >
+                Upload PDF
+              </Button>
+            </Box>
             {uploadMessage && (
               <Typography variant="body2" color="textSecondary" marginTop={2}>
                 {uploadMessage}
@@ -133,20 +158,7 @@ export default function Home() {
                 )}
               </Select>
             </FormControl>
-            {/* Refresh Button. Just for testing */}
-            {/* 
-            <IconButton onClick={fetchData}>
-              <RefreshIcon />
-            </IconButton>
-            */}
           </Box>
-
-          {/* Upload Message */}
-          {uploadMessage && (
-            <Typography variant="body2" color="textSecondary">
-              {uploadMessage}
-            </Typography>
-          )}
 
           {/* Question Input and Submit */}
           <form onSubmit={handleSubmit}>
