@@ -10,7 +10,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  //IconButton,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 //import RefreshIcon from "@mui/icons-material/Refresh";
@@ -27,6 +26,9 @@ export default function Home() {
   const [uploadMessage, setUploadMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reference to the file input element
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Reference to the file input element
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -144,6 +146,20 @@ export default function Home() {
               >
                 Upload PDF
               </LoadingButton>
+                ref={fileInputRef} // Attach the ref to the file input
+                style={{
+                  flex: 1,
+                  marginRight: "10px", // Add spacing between input and button
+                }}
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleFileUpload}
+                style={{ whiteSpace: "nowrap" }} // Prevent text wrapping
+              >
+                Upload PDF
+              </Button>
             </Box>
             {uploadMessage && (
               <Typography variant="body1" color="textSecondary" marginTop={1}>
