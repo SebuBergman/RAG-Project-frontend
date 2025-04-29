@@ -1,13 +1,19 @@
 import axios from "axios";
 
 // Function to make a POST request to the FastAPI backend
-export const queryAPI = async (question: string, pdf: string): Promise<string> => {
+export const queryAPI = async (
+  question: string,
+  keyword: string,
+  file_name: string,
+): Promise<string> => {
   try {
     const response = await axios.post("http://localhost:8000/query", {
       question,
-      pdf,
+      keyword,
+      file_name, // Pass file_name here
     });
 
+    console.log("Response from API:", response.data); // Log the response for debugging
     // Return the answer from the backend
     return response.data.answer;
   } catch (error) {
