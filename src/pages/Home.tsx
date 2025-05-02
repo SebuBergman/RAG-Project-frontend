@@ -30,9 +30,6 @@ export default function Home() {
   // Reference to the file input element
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Reference to the file input element
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   // Fetch the list of PDFs when the component mounts
   useEffect(() => {
     fetchData();
@@ -146,20 +143,6 @@ export default function Home() {
               >
                 Upload PDF
               </LoadingButton>
-                ref={fileInputRef} // Attach the ref to the file input
-                style={{
-                  flex: 1,
-                  marginRight: "10px", // Add spacing between input and button
-                }}
-              />
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleFileUpload}
-                style={{ whiteSpace: "nowrap" }} // Prevent text wrapping
-              >
-                Upload PDF
-              </Button>
             </Box>
             {uploadMessage && (
               <Typography variant="body1" color="textSecondary" marginTop={1}>
