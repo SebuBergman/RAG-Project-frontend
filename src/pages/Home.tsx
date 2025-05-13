@@ -12,7 +12,6 @@ import {
   Select,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-//import RefreshIcon from "@mui/icons-material/Refresh";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -26,6 +25,7 @@ export default function Home() {
   const [uploadMessage, setUploadMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCachedResponse, setIsCachedResponse] = useState(false);
 
   // Reference to the file input element
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -51,6 +51,7 @@ export default function Home() {
     e.preventDefault();
     setIsSubmitting(true); // Set loading state when starting submission
     setAnswer(""); // Reset the answer before submitting
+    setIsCachedResponse(false); // Reset cached response state
 
     if (question.trim() === "") {
       setAnswer("Please enter a question.");
@@ -67,7 +68,8 @@ export default function Home() {
     // Call the backend API and set the answer
     const response = await queryAPI(question, keyword, selectedPDF); // Pass selectedPDF as file_name
     setIsSubmitting(false); // Reset the loading state after submission
-    setAnswer(response); // Set the answer from the API response
+    setAnswer(response.answer); // Set the answer from the API response
+    setIsCachedResponse(response.cached); // Set the cached response state
   };
 
   // Handle PDF file upload
@@ -216,7 +218,22 @@ export default function Home() {
               border="1px solid #ddd"
               borderRadius="4px"
               bgcolor="#f9f9f9"
+              position="relative"
             >
+              {isCachedResponse && (
+                <Box
+                  position="absolute"
+                  top={8}
+                  right={8}
+                  bgcolor="#e3f2fd"
+                  px={1}
+                  borderRadius={4}
+                >
+                  <Typography variant="caption" color="primary">
+                    Cached Response
+                  </Typography>
+                </Box>
+              )}
               <Typography variant="h6">Answer:</Typography>
               <Typography>{answer}</Typography>
             </Box>
