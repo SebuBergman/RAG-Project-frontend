@@ -4,21 +4,27 @@ import axios from "axios";
 export const queryAPI = async (
   question: string,
   keyword: string,
-  file_name: string,
-): Promise<string> => {
+  file_name: string
+): Promise<{ answer: string; cached: boolean }> => {
   try {
     const response = await axios.post("http://localhost:8000/query", {
       question,
       keyword,
-      file_name, // Pass file_name here
+      file_name,
     });
 
-    console.log("Response from API:", response.data); // Log the response for debugging
+    console.log("Response from API:", response.data);
     // Return the answer from the backend
-    return response.data.answer;
+    return {
+      answer: response.data.answer,
+      cached: response.data.cached,
+    };
   } catch (error) {
     console.error("Error querying the API:", error);
-    return "An error occurred while querying the API. Please try again.";
+    return {
+      answer: "An error occurred while querying the API. Please try again.",
+      cached: false,
+    };
   }
 };
 
@@ -28,11 +34,15 @@ export const uploadPDF = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post("http://localhost:8000/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await axios.post(
+      "http://localhost:8000/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
     return response.data.message;
   } catch (error) {
