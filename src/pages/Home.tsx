@@ -10,8 +10,26 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Button,
+  Chip,
+  Avatar,
+  LinearProgress,
+  styled,
+  useTheme,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { FileUpload, Search, HelpOutline } from "@mui/icons-material";
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  borderRadius: "16px",
+  boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+  background: theme.palette.background.paper,
+}));
+
+const FileInput = styled("input")({
+  display: "none",
+});
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -26,11 +44,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCachedResponse, setIsCachedResponse] = useState(false);
+  const theme = useTheme();
 
-  // Reference to the file input element
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Fetch the list of PDFs when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
@@ -38,207 +55,249 @@ export default function Home() {
   const fetchData = async () => {
     const pdfList = await fetchPDFs();
     setPDFs(pdfList);
-
-    if (pdfList.length > 0) {
-      setSelectedPDF(pdfList[0].file_name); // Automatically select the first PDF if available
-    } else {
-      setSelectedPDF(""); // Reset selected PDF if no PDFs are available
-    }
+    setSelectedPDF(pdfList[0]?.file_name || "");
   };
 
-  // Handle the form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true); // Set loading state when starting submission
-    setAnswer(""); // Reset the answer before submitting
-    setIsCachedResponse(false); // Reset cached response state
+    setIsSubmitting(true);
+    setAnswer("");
+    setIsCachedResponse(false);
 
-    if (question.trim() === "") {
+    if (!question.trim()) {
       setAnswer("Please enter a question.");
       setIsSubmitting(false);
       return;
     }
 
-    if (selectedPDF === "") {
+    if (!selectedPDF) {
       setAnswer("Please select a PDF.");
       setIsSubmitting(false);
       return;
     }
 
-    // Call the backend API and set the answer
-    const response = await queryAPI(question, keyword, selectedPDF); // Pass selectedPDF as file_name
-    setIsSubmitting(false); // Reset the loading state after submission
-    setAnswer(response.answer); // Set the answer from the API response
-    setIsCachedResponse(response.cached); // Set the cached response state
+    const response = await queryAPI(question, keyword, selectedPDF);
+    setIsSubmitting(false);
+    setAnswer(response.answer);
+    setIsCachedResponse(response.cached);
   };
 
-  // Handle PDF file upload
   const handleFileUpload = async () => {
-    setIsLoading(true); // Set loading state when starting upload
+    if (!file) return;
 
-    if (!file) {
-      setUploadMessage("Please select a file to upload.");
-      return;
-    }
+    setIsLoading(true);
+    setUploadMessage("Uploading your document...");
 
-    setUploadMessage("File uploading. This might take some time!"); // Reset the upload message
-    const message = await uploadPDF(file);
-    setUploadMessage(message); // Set the upload message after upload
-    setIsLoading(false); // Reset the loading state after upload
-
-    // Refresh the list of PDFs after upload
-    fetchData();
-
-    // Reset the file input and file state
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset the file input element
+    try {
+      const message = await uploadPDF(file);
+      setUploadMessage(message);
+      fetchData();
+    } finally {
+      setIsLoading(false);
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        style={{ minHeight: "100vh" }}
-      >
-        <Paper elevation={3} style={{ padding: "20px" }}>
-          <Box textAlign="center" marginBottom={2}>
-            <Typography variant="h4" gutterBottom>
-              Ask a Question from the RAG Agent
-            </Typography>
-          </Box>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box display="flex" flexDirection="column" gap={4}>
+        {/* Header Section */}
+        <Box textAlign="center">
+          <Typography variant="h3" fontWeight="bold" gutterBottom>
+            Knowledge Assistant
+          </Typography>
+          <Typography variant="subtitle1" color="white">
+            Ask questions and get answers from your documents
+          </Typography>
+        </Box>
 
-          {/* File upload Section */}
-          <Box
-            marginBottom={4}
-            display="flex"
-            flexDirection="column"
-            alignItems="stretch"
-          >
-            <Typography variant="h6" marginBottom={1}>
-              Upload a PDF
+        {/* Main Content */}
+        <Box display="flex" gap={4}>
+          {/* Left Panel - Document Management */}
+          <StyledPaper sx={{ flex: 1 }}>
+            <Typography variant="h5" fontWeight="medium" gutterBottom>
+              Document Management
             </Typography>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                ref={fileInputRef}
-                style={{
-                  flex: 1,
-                  marginRight: "10px",
-                }}
-              />
-              <LoadingButton
-                loading={isLoading}
-                variant="contained"
-                color="secondary"
-                onClick={handleFileUpload}
-                disabled={!file}
+
+            <Box mb={3}>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
               >
-                Upload PDF
-              </LoadingButton>
-            </Box>
-            {uploadMessage && (
-              <Typography variant="body1" color="textSecondary" marginTop={1}>
-                {uploadMessage}
+                Upload New Document
               </Typography>
-            )}
-          </Box>
-
-          {/* PDF Selection Section */}
-          <Box marginBottom={2}>
-            <FormControl fullWidth>
-              <InputLabel>Select a PDF</InputLabel>
-              <Select
-                value={selectedPDF}
-                onChange={(e) => setSelectedPDF(e.target.value)}
-              >
-                {pdfs.length > 0 ? (
-                  pdfs.map((pdf) => (
-                    <MenuItem key={pdf.file_name} value={pdf.file_name}>
-                      {pdf.file_name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem value="" disabled>
-                    No PDFs uploaded
-                  </MenuItem>
-                )}
-              </Select>
-            </FormControl>
-          </Box>
-
-          {/* Question Input and Submit */}
-          <form onSubmit={handleSubmit}>
-            <Box marginBottom={2}>
-              <TextField
-                fullWidth
-                label="Enter your question"
-                variant="outlined"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-              />
-            </Box>
-            <Box marginBottom={2}>
-              <TextField
-                fullWidth
-                label="Enter your keyword"
-                variant="outlined"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-              />
-            </Box>
-            <Box textAlign="center">
-              <LoadingButton
-                loading={isSubmitting}
-                disabled={isSubmitting}
-                type="submit"
-                variant="contained"
-                color="primary"
-                size="large"
-              >
-                Ask
-              </LoadingButton>
-            </Box>
-          </form>
-
-          {/* Display the answer if available */}
-          {answer && (
-            <Box
-              marginTop={3}
-              padding={2}
-              border="1px solid #ddd"
-              borderRadius="4px"
-              bgcolor="#f9f9f9"
-              position="relative"
-            >
-              {isCachedResponse && (
-                <Box
-                  position="absolute"
-                  top={8}
-                  right={8}
-                  bgcolor="#e3f2fd"
-                  px={1}
-                  borderRadius={4}
-                >
-                  <Typography variant="caption" color="primary">
-                    Cached Response
-                  </Typography>
+              <Box>
+                <Box mb={1}>
+                  <label htmlFor="file-upload">
+                    <FileInput
+                      id="file-upload"
+                      type="file"
+                      accept="application/pdf"
+                      ref={fileInputRef}
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    />
+                    <Button
+                      variant="outlined"
+                      component="span"
+                      startIcon={<FileUpload />}
+                      fullWidth
+                    >
+                      <Typography style={{ fontSize: 12 }}>
+                        Choose PDF
+                      </Typography>
+                    </Button>
+                  </label>
                 </Box>
+                <Box>
+                  <LoadingButton
+                    loading={isLoading}
+                    variant="contained"
+                    onClick={handleFileUpload}
+                    disabled={!file}
+                    startIcon={<FileUpload />}
+                    fullWidth
+                  >
+                    Upload
+                  </LoadingButton>
+                </Box>
+              </Box>
+              {file && (
+                <Typography variant="caption" color="text.secondary" mt={1}>
+                  Selected: {file.name}
+                </Typography>
               )}
-              <Typography variant="h6">Answer:</Typography>
-              <Typography>{answer}</Typography>
+              {uploadMessage && (
+                <Typography
+                  variant="body2"
+                  mt={1}
+                  color={isLoading ? "primary" : "text.secondary"}
+                >
+                  {uploadMessage}
+                </Typography>
+              )}
             </Box>
-          )}
-        </Paper>
+
+            <Box>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
+                Available Documents
+              </Typography>
+              <FormControl fullWidth size="small">
+                <InputLabel>Select Document</InputLabel>
+                <Select
+                  value={selectedPDF}
+                  onChange={(e) => setSelectedPDF(e.target.value)}
+                  label="Select Document"
+                >
+                  {pdfs.length > 0 ? (
+                    pdfs.map((pdf) => (
+                      <MenuItem key={pdf.file_name} value={pdf.file_name}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Avatar
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              bgcolor: theme.palette.primary.main,
+                            }}
+                          >
+                            <Typography variant="caption">PDF</Typography>
+                          </Avatar>
+                          <Typography>{pdf.file_name}</Typography>
+                        </Box>
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem value="" disabled>
+                      No documents available
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            </Box>
+          </StyledPaper>
+
+          {/* Right Panel - Query Interface */}
+          <StyledPaper sx={{ flex: 2 }}>
+            <Typography variant="h5" fontWeight="medium" gutterBottom>
+              Ask Your Question
+            </Typography>
+
+            <form onSubmit={handleSubmit}>
+              <Box mb={3}>
+                <TextField
+                  fullWidth
+                  label="Your question"
+                  variant="outlined"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  multiline
+                  rows={3}
+                  InputProps={{
+                    endAdornment: <HelpOutline color="action" />,
+                  }}
+                />
+              </Box>
+
+              <Box mb={3}>
+                <TextField
+                  fullWidth
+                  label="Optional keywords (comma separated)"
+                  variant="outlined"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                />
+              </Box>
+
+              <Box display="flex" justifyContent="flex-end">
+                <LoadingButton
+                  loading={isSubmitting}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  startIcon={<Search />}
+                  sx={{ minWidth: 120 }}
+                >
+                  {isSubmitting ? "Searching..." : "Ask"}
+                </LoadingButton>
+              </Box>
+            </form>
+
+            {/* Answer Section */}
+            {isSubmitting && <LinearProgress sx={{ my: 2 }} />}
+
+            {answer && (
+              <Box
+                mt={4}
+                p={3}
+                border={`1px solid ${theme.palette.divider}`}
+                borderRadius="12px"
+                bgcolor={theme.palette.background.default}
+                position="relative"
+              >
+                {isCachedResponse && (
+                  <Chip
+                    label="Cached Response"
+                    color="info"
+                    size="small"
+                    sx={{ position: "absolute", top: 8, right: 8 }}
+                  />
+                )}
+                <Typography variant="h6" fontWeight="medium" gutterBottom>
+                  Answer
+                </Typography>
+                <Typography variant="body1" whiteSpace="pre-wrap">
+                  {answer}
+                </Typography>
+              </Box>
+            )}
+          </StyledPaper>
+        </Box>
       </Box>
     </Container>
   );
