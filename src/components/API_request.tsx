@@ -11,6 +11,7 @@ export const queryAPI = async (
       question,
       keyword,
       file_name,
+      cached: false,
     });
 
     console.log("Response from API:", response.data);
