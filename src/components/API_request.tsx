@@ -7,7 +7,7 @@ export const queryAPI = async (
   file_name: string
 ): Promise<{ answer: string; cached: boolean }> => {
   try {
-    const response = await axios.post("http://localhost:8000/query", {
+    const response = await axios.post("http://localhost:8080/query", {
       question,
       keyword,
       file_name,
@@ -36,7 +36,7 @@ export const uploadPDF = async (file: File): Promise<string> => {
     formData.append("file", file);
 
     const response = await axios.post(
-      "http://localhost:8000/upload",
+      "http://localhost:8080/upload",
       formData,
       {
         headers: {
@@ -57,7 +57,7 @@ export const fetchPDFs = async (): Promise<
   { file_name: string; file_path: string }[]
 > => {
   try {
-    const response = await axios.get("http://localhost:8000/pdfs");
+    const response = await axios.get("http://localhost:8080/pdfs");
     // Ensure the response is correctly formatted
     if (Array.isArray(response.data.pdfs)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
